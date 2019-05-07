@@ -119,7 +119,6 @@
       AlertBuilder.newBuilder().response(response).delay(0).build();
     }
 
-
     function init() {
       ctrl.realm = $q.all(
         [
