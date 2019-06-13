@@ -29,7 +29,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -37,6 +36,8 @@ import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.obiba.agate.web.filter.CachingHttpHeadersFilter;
 import org.obiba.agate.web.filter.StaticResourcesProductionFilter;
+import org.obiba.agate.web.filter.auth.oidc.AgateCallbackFilter;
+import org.obiba.agate.web.filter.auth.oidc.AgateSignInFilter;
 import org.obiba.shiro.web.filter.AuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,16 +91,24 @@ public class WebConfiguration implements ServletContextInitializer, JettyServerC
 
   private final AuthenticationFilter authenticationFilter;
 
+  private final AgateSignInFilter agateSignInFilter;
+
+  private final AgateCallbackFilter agateCallbackFilter;
+
   private int httpsPort;
 
   @Inject
   public WebConfiguration(
     MetricRegistry metricRegistry,
     org.obiba.ssl.SslContextFactory sslContextFactory,
-    AuthenticationFilter authenticationFilter) {
+    AuthenticationFilter authenticationFilter,
+    AgateSignInFilter agateSignInFilter, AgateCallbackFilter agateCallbackFilter) {
+
     this.metricRegistry = metricRegistry;
     this.sslContextFactory = sslContextFactory;
     this.authenticationFilter = authenticationFilter;
+    this.agateSignInFilter = agateSignInFilter;
+    this.agateCallbackFilter = agateCallbackFilter;
   }
 
   @Override
@@ -150,6 +159,7 @@ public class WebConfiguration implements ServletContextInitializer, JettyServerC
 
     initAllowedMethodsFilter(servletContext);
     initAuthenticationFilter(servletContext);
+    initOIDCAuthenticationFilter(servletContext);
 
     EnumSet<DispatcherType> disps = EnumSet.of(REQUEST, FORWARD, ASYNC);
     initMetrics(servletContext, disps);
@@ -185,6 +195,14 @@ public class WebConfiguration implements ServletContextInitializer, JettyServerC
     filterRegistration.addMappingForUrlPatterns(EnumSet.of(REQUEST, FORWARD, ASYNC, INCLUDE, ERROR), true,
       WS_ROOT + "/*");
     filterRegistration.setAsyncSupported(true);
+  }
+
+  private void initOIDCAuthenticationFilter(ServletContext servletContext) {
+    log.debug("Registering OIDC Authentication Filter");
+    FilterRegistration.Dynamic signInFilterRegistration = servletContext.addFilter("agateSignInFilter", agateSignInFilter);
+    signInFilterRegistration.addMappingForUrlPatterns(EnumSet.of(REQUEST, FORWARD, INCLUDE, ERROR), true, "/auth/signin/*");
+    FilterRegistration.Dynamic callbackFilterRegistration = servletContext.addFilter("agateCallbackFilter", agateCallbackFilter);
+    callbackFilterRegistration.addMappingForUrlPatterns(EnumSet.of(REQUEST, FORWARD, INCLUDE, ERROR), true, "/auth/callback/*");
   }
 
   /**
