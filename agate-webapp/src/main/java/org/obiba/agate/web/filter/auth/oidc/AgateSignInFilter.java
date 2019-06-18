@@ -9,6 +9,7 @@ package org.obiba.agate.web.filter.auth.oidc;/*
  */
 
 
+import com.google.common.base.Strings;
 import org.obiba.agate.service.ConfigurationService;
 import org.obiba.oidc.OIDCConfigurationProvider;
 import org.obiba.oidc.OIDCException;
@@ -28,6 +29,8 @@ import java.io.IOException;
 @Component("agateSignInFilter")
 public class AgateSignInFilter extends OIDCLoginFilter {
 
+  private static final String REDIRECT_URL = "redirect_url";
+
   private final ConfigurationService configurationService;
 
   private final OIDCConfigurationProvider oidcConfigurationProvider;
@@ -35,6 +38,26 @@ public class AgateSignInFilter extends OIDCLoginFilter {
   private final OIDCSessionManager oidcSessionManager;
 
   private String publicUrl;
+
+  private String redirectUrl;
+
+  @Override
+  protected String makeCallbackURL(String provider) {
+    String callbackURL = super.makeCallbackURL(provider);
+    String query = "action=signin";
+
+    if (callbackURL.contains("?")) {
+      callbackURL += "&" + query;
+    } else {
+      callbackURL += "?" + query;
+    }
+
+    if (!Strings.isNullOrEmpty(redirectUrl)) {
+      callbackURL += "&redirect_url=" + redirectUrl;
+    }
+
+    return callbackURL;
+  }
 
   @Inject
   public AgateSignInFilter(ConfigurationService configurationService,
@@ -57,6 +80,7 @@ public class AgateSignInFilter extends OIDCLoginFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     try {
+      redirectUrl = request.getParameter(REDIRECT_URL);
       super.doFilterInternal(request, response, filterChain);
     } catch (OIDCException e) {
       response.sendRedirect(publicUrl);
