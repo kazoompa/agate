@@ -10,6 +10,8 @@
 
 package org.obiba.agate.domain;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +36,7 @@ import com.google.common.collect.Sets;
  * A user, for any realm.
  */
 @Document
-public class User extends AbstractAuditableDocument {
+public class User extends AbstractAuditableDocument implements GitPersistable {
 
   private static final long serialVersionUID = 688200108221675323L;
 
@@ -320,6 +322,20 @@ public class User extends AbstractAuditableDocument {
 
   public boolean hasSecret() {
     return !Strings.isNullOrEmpty(secret);
+  }
+
+  @Override
+  public String pathPrefix() {
+    return "user";
+  }
+
+  @Override
+  public Map<String, Serializable> parts() {
+    User self = this;
+
+    return new HashMap<String, Serializable>() {{
+      put(self.getClass().getSimpleName(), self);
+    }};
   }
 
   public static class Builder {

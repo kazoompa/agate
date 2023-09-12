@@ -216,6 +216,19 @@
       <artifactId>obiba-oidc</artifactId>
     </dependency>
 
+
+    <dependency>
+      <groupId>org.obiba.commons</groupId>
+      <artifactId>obiba-git</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
