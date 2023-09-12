@@ -63,6 +63,8 @@
     <nosqlunit.version>0.7.9</nosqlunit.version>
     <oauth-oidc-sdk.version>5.45</oauth-oidc-sdk.version>
     <obiba-commons.version>3.1-SNAPSHOT</obiba-commons.version>
+    <jgit.version>3.6.2.201501210735-r</jgit.version>
+    <commons-math.version>3.5</commons-math.version>
     <oltu.version>1.0.1</oltu.version>
     <postgres.version>42.5.1</postgres.version>
     <protobuf.version>2.5.0</protobuf.version>
@@ -484,6 +486,21 @@
         <version>${logstash-logback.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.obiba.commons</groupId>
+        <artifactId>obiba-git</artifactId>
+        <version>${obiba-commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jgit</groupId>
+        <artifactId>org.eclipse.jgit</artifactId>
+        <version>${jgit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>${commons-math.version}</version>
+      </dependency>
     </dependencies>
 
   </dependencyManagement>

@@ -96,18 +96,19 @@
     private final ConfigurationService configurationService;
 
     private final RealmConfigRepository realmConfigRepository;
+    private final GitService gitService;
 
     @Inject
     public UserService(
-        UserRepository userRepository,
-        GroupService groupService,
-        UserCredentialsRepository userCredentialsRepository,
-        Environment env,
-        EventBus eventBus,
-        Configuration freemarkerConfiguration,
-        MessageSource messageSource, MailService mailService,
-        ConfigurationService configurationService,
-        RealmConfigRepository realmConfigRepository) {
+            UserRepository userRepository,
+            GroupService groupService,
+            UserCredentialsRepository userCredentialsRepository,
+            Environment env,
+            EventBus eventBus,
+            Configuration freemarkerConfiguration,
+            MessageSource messageSource, MailService mailService,
+            ConfigurationService configurationService,
+            RealmConfigRepository realmConfigRepository, GitService gitService) {
       this.userRepository = userRepository;
       this.groupService = groupService;
       this.userCredentialsRepository = userCredentialsRepository;
@@ -118,6 +119,7 @@
       this.mailService = mailService;
       this.configurationService = configurationService;
       this.realmConfigRepository = realmConfigRepository;
+      this.gitService = gitService;
     }
 
     //
@@ -333,6 +335,8 @@
           if (group == null) groupService.save(new Group(groupName));
         }
       }
+
+      gitService.save(saved, "Saved user");
 
       if (UserStatus.APPROVED.equals(user.getStatus()) && (prevStatus == null || !prevStatus.equals(user.getStatus())))
         eventBus.post(new UserApprovedEvent(user));
